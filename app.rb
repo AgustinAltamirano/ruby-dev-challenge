@@ -2,6 +2,7 @@
 require 'rack'
 require 'json'
 require 'logger'
+require_relative 'utils/response'
 
 class App
   def initialize
@@ -16,8 +17,6 @@ class App
     case req.request_method
     when 'POST'
       case req.path_info
-      when '/auth'
-        return handle_auth(req)
       when '/products'
         return handle_create_product(req)
       else
@@ -42,15 +41,6 @@ class App
   end
 
   private
-
-  def handle_auth(req)
-    data = JSON.parse(req.body.read) rescue {}
-    if data['username'] == 'admin' && data['password'] == 'secret'
-      response(200, { token: 'secrettoken' })
-    else
-      response(401, { error: 'Invalid credentials' })
-    end
-  end
 
   def handle_create_product(req)
     data = JSON.parse(req.body.read) rescue {}
@@ -100,9 +90,5 @@ class App
 
   def not_found
     response(404, { error: "Not found" })
-  end
-
-  def response(status, body)
-    [status, { "Content-Type" => "application/json" }, [body.to_json]]
   end
 end
