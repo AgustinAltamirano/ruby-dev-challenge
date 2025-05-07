@@ -41,7 +41,7 @@ class AuthMiddleware
       @auth_service.register_user(username, password)
       response(201, { message: "User registered successfully" })
     rescue AuthException => e
-      response(400, { error: e })
+      response(401, { error: e })
     end
   end
 

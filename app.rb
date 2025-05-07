@@ -61,7 +61,7 @@ class App
     begin
       response(200, @product_service.get_product(product_id))
     rescue ProductException => e
-      response(400, { error: e })
+      response(404, { error: e })
     end
   end
 

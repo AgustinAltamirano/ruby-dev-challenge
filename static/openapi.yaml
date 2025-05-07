@@ -3,34 +3,138 @@ info:
   title: Ruby Backend Dev Challenge API
   version: 1.0.0
 paths:
-  /auth:
+  /register:
     post:
-      summary: Authenticate
+      summary: Register a new user
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                password:
-                  type: string
+              $ref: '#/components/schemas/User'
       responses:
-        '200':
-          description: Token returned
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User registered successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid credentials
+  /login:
+    get:
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User logged in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: token
+                  expires_in:
+                    type: integer
+                    example: 3600
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid credentials
+
   /products:
     post:
       summary: Create product (async)
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Bearer <token>
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
       responses:
         '202':
           description: Product creation scheduled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Product creation scheduled
+                  id:
+                    type: integer
+                    example: 1
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid token
     get:
       summary: List products
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Bearer <token>
       responses:
         '200':
           description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                    $ref: '#/components/schemas/ProductWithId'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid token
   /products/{id}:
     get:
       summary: Get product by ID
@@ -40,8 +144,100 @@ paths:
           required: true
           schema:
             type: integer
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Bearer <token>
       responses:
         '200':
           description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductWithId'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid token
         '404':
           description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Product not found
+  /openapi.yaml:
+    get:
+      summary: Retrieve OpenAPI specification
+      description: Returns the OpenAPI specification file in YAML format.
+      responses:
+        '200':
+          description: OpenAPI specification retrieved successfully
+          content:
+            application/yaml:
+              schema:
+                type: string
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Not found
+
+  /AUTHORS:
+    get:
+      summary: Retrieve AUTHORS file
+      description: Returns the AUTHORS file containing contributor information.
+      responses:
+        '200':
+          description: AUTHORS file retrieved successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Not found
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    Product:
+      type: object
+      properties:
+        name:
+          type: string
+    ProductWithId:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
