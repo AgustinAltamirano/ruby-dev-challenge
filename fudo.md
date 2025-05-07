@@ -1,0 +1,3 @@
+Fudo es un software en la nube diseñado para gestionar restaurantes, bares y todo tipo de establecimientos gastronómicos. Está destinado a potenciar todos los eslabones de la cadena de valor de estos negocios, desde la venta y delivery de pedidos de clientes hasta la gestión de gastos, costos y proveedores.
+
+Ofrece funcionalidades como mapa de mesas, control de caja, reportes gráficos, integración con apps de delivery y aplicaciones para camareros y comensales. A su vez, cuenta con distintos planes para sus servicios compatibles con todo tipo de negocios, desde pequeños emprendimientos de comida hasta grandes establecimientos.

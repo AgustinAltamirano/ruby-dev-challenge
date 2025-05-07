@@ -1,0 +1,1 @@
+HTTP es un protocolo de capa de aplicación que permite la comunicación entre navegadores y servidores web. Define cómo se solicitan y se envían los recursos, como páginas HTML, imágenes o datos, en la web. La comunicación se basa en solicitudes (requests) de los clientes y respuestas (responses) del servidor.
