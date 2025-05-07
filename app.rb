@@ -5,12 +5,11 @@ require 'logger'
 require_relative 'utils/response'
 require 'dry/schema'
 require_relative 'models/product_schema'
+require_relative 'services/product_service'
 
 class App
   def initialize
-    @products = {}
-    @pending = []
-    @next_product_id = 1
+    @product_service = ProductService.new
   end
 
   def call(env)
@@ -28,7 +27,7 @@ class App
     when 'GET'
       case req.path_info
       when '/products'
-        return handle_list_products(req)
+        return handle_list_products
       when /^\/products\/(\d+)$/
         return handle_get_product(req)
       when '/openapi.yaml'
@@ -51,29 +50,21 @@ class App
     if body_result.errors.any?
       return response(400, { error: "Invalid request body", details: body_result.errors.to_h })
     end
-    id = @next_product_id
-    @next_product_id += 1
     name = body_result[:name]
-
-    Thread.new do
-      sleep 5
-      @products[id] = { id: id, name: name }
-    end
-
-    response(202, { message: "Product creation scheduled", id: id })
+    product_id = @product_service.create_product(name)
+    response(202, { message: "Product creation scheduled", id: product_id })
   end
 
-  def handle_list_products(req)
-    response(200, @products.values)
+  def handle_list_products
+    response(200, @product_service.list_products)
   end
 
   def handle_get_product(req)
-    id = req.path_info.split('/').last.to_i
-    product = @products[id]
-    if product
-      response(200, product)
-    else
-      response(404, { error: "Product not found" })
+    product_id = req.path_info.split('/').last.to_i
+    begin
+      response(200, @product_service.get_product(product_id))
+    rescue ProductException => e
+      response(400, { error: e })
     end
   end
 

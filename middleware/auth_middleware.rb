@@ -1,5 +1,5 @@
 require 'json'
-require_relative 'auth_service'
+require_relative '../services/auth_service'
 require_relative '../utils/response'
 require 'jwt'
 require 'rack'
