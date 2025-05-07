@@ -3,7 +3,8 @@ require_relative 'auth_service'
 require_relative '../utils/response'
 require 'jwt'
 require 'rack'
-
+require 'dry/schema'
+require_relative '../models/user_schema'
 class AuthMiddleware
   def initialize(app)
     @app = app
@@ -29,9 +30,13 @@ class AuthMiddleware
 
   private
   def register_user(req)
-    data = JSON.parse(req.body.read) rescue {}
-    username = data['username']
-    password = data['password']
+    body = JSON.parse(req.body.read) rescue {}
+    body_result = UserSchema.call(body)
+    if body_result.errors.any?
+      return response(400, { error: "Invalid request body", details: body_result.errors.to_h })
+    end
+    username = body_result[:username]
+    password = body_result[:password]
     begin
       @auth_service.register_user(username, password)
       response(201, { message: "User registered successfully" })
@@ -41,10 +46,13 @@ class AuthMiddleware
   end
 
   def login_user(req)
-    data = JSON.parse(req.body.read) rescue {}
-    puts "hola"
-    username = data['username']
-    password = data['password']
+    body = JSON.parse(req.body.read) rescue {}
+    body_result = UserSchema.call(body)
+    if body_result.errors.any?
+      return response(400, { error: "Invalid request body", details: body_result.errors.to_h })
+    end
+    username = body_result[:username]
+    password = body_result[:password]
     begin
       token = @auth_service.login_user(username, password)
       response(200, { token: token, expires_in: AuthService.expiration_time })

@@ -6,6 +6,6 @@ class AuthException < StandardError
   end
 
   def to_s
-    "##{@message}"
+    "#{@message}"
   end
 end

@@ -3,11 +3,14 @@ require 'rack'
 require 'json'
 require 'logger'
 require_relative 'utils/response'
+require 'dry/schema'
+require_relative 'models/product_schema'
 
 class App
   def initialize
     @products = {}
     @pending = []
+    @next_product_id = 1
   end
 
   def call(env)
@@ -43,9 +46,14 @@ class App
   private
 
   def handle_create_product(req)
-    data = JSON.parse(req.body.read) rescue {}
-    id = rand(1000..9999)
-    name = data["name"] || "Unnamed"
+    body = JSON.parse(req.body.read) rescue {}
+    body_result = ProductSchema.call(body)
+    if body_result.errors.any?
+      return response(400, { error: "Invalid request body", details: body_result.errors.to_h })
+    end
+    id = @next_product_id
+    @next_product_id += 1
+    name = body_result[:name]
 
     Thread.new do
       sleep 5
