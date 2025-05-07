@@ -16,9 +16,9 @@ class AuthMiddleware
     path = req.path_info
     case [req.request_method, path]
     when %w[POST /register]
-      return register_user(req)
+      return handle_register_user(req)
     when %w[GET /login]
-      return login_user(req)
+      return handle_login_user(req)
     else
       if path == "/openapi.yaml" || path == "/AUTHORS"
         return @app.call(env)
@@ -29,7 +29,7 @@ class AuthMiddleware
   end
 
   private
-  def register_user(req)
+  def handle_register_user(req)
     body = JSON.parse(req.body.read) rescue {}
     body_result = UserSchema.call(body)
     if body_result.errors.any?
@@ -45,7 +45,7 @@ class AuthMiddleware
     end
   end
 
-  def login_user(req)
+  def handle_login_user(req)
     body = JSON.parse(req.body.read) rescue {}
     body_result = UserSchema.call(body)
     if body_result.errors.any?

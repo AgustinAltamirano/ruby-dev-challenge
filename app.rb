@@ -1,7 +1,6 @@
 # app.rb
 require 'rack'
 require 'json'
-require 'logger'
 require_relative 'utils/response'
 require 'dry/schema'
 require_relative 'models/product_schema'
@@ -13,9 +12,7 @@ class App
   end
 
   def call(env)
-    logger = Logger.new($stdout)
     req = Rack::Request.new(env)
-    logger.info "#{req.request_method} #{req.path_info}"
     case req.request_method
     when 'POST'
       case req.path_info

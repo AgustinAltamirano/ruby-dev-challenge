@@ -1,11 +1,11 @@
 require 'jwt'
-
+require 'dotenv/load'
 require_relative '../utils/auth_exception'
 
 class AuthService
-  SECRET_KEY = 'secrettoken'
+  SECRET_KEY = ENV.fetch('SECRET_KEY', 'default_secret')
   ALGORITHM = 'HS256'
-  EXPIRATION_TIME_SECONDS = 3600 # 1 hour
+  EXPIRATION_TIME_SECONDS = ENV.fetch('EXPIRATION_TIME_SECONDS', '3600').to_i # 1 hour by default
 
   def initialize
     @users = {}
